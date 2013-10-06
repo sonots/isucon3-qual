@@ -86,8 +86,9 @@ class Isucon3App < Sinatra::Base
     mysql = connection
     user  = get_user
 
-    total = mysql.query("SELECT count(*) AS c FROM memos WHERE is_private=0").first["c"]
-    memos = mysql.query("SELECT * FROM memos WHERE is_private=0 ORDER BY created_at DESC, id DESC LIMIT 100")
+    total = mysql.xquery('SELECT count(*) AS c FROM memos WHERE is_private=0').first["c"]
+
+    memos = mysql.query("SELECT * FROM memos WHERE is_private=0 ORDER BY id DESC LIMIT 100")
     erb :index, :layout => :base, :locals => {
       :memos => memos,
       :page  => 0,
@@ -102,7 +103,7 @@ class Isucon3App < Sinatra::Base
 
     page  = params["page"].to_i
     total = mysql.xquery('SELECT count(*) AS c FROM memos WHERE is_private=0').first["c"]
-    memos = mysql.xquery("SELECT * FROM memos WHERE is_private=0 ORDER BY created_at DESC, id DESC LIMIT 100 OFFSET #{page * 100}")
+    memos = mysql.xquery("SELECT * FROM memos WHERE is_private=0 ORDER BY id DESC LIMIT 100 OFFSET #{page * 100}")
     if memos.count == 0
       halt 404, "404 Not Found"
     end
@@ -207,16 +208,19 @@ class Isucon3App < Sinatra::Base
     require_user(user)
     anti_csrf
 
-    content_html = gen_markdown(params["content"])
+    first_sentence = params["content"].split(/\r?\n/).first
+    content_html   = gen_markdown(params["content"])
 
     mysql.xquery(
-      'INSERT INTO memos (user, username, content, is_private, created_at) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO memos (user, username,first_sentence, content, is_private, created_at) VALUES (?, ?, ?, ?, ?, ?)',
       user["id"],
       user["username"],
+      first_sentence,
       content_html,
       params["is_private"].to_i,
       Time.now,
     )
+    
     memo_id = mysql.last_id
     redirect "/memo/#{memo_id}"
   end
