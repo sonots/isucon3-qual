@@ -81,9 +81,6 @@ class Isucon3App < Sinatra::Base
 
     total = mysql.query("SELECT count(*) AS c FROM memos WHERE is_private=0").first["c"]
     memos = mysql.query("SELECT * FROM memos WHERE is_private=0 ORDER BY created_at DESC, id DESC LIMIT 100")
-    memos.each do |row|
-      row["username"] = mysql.xquery("SELECT username FROM users WHERE id=?", row["user"]).first["username"]
-    end
     erb :index, :layout => :base, :locals => {
       :memos => memos,
       :page  => 0,
@@ -101,9 +98,6 @@ class Isucon3App < Sinatra::Base
     memos = mysql.xquery("SELECT * FROM memos WHERE is_private=0 ORDER BY created_at DESC, id DESC LIMIT 100 OFFSET #{page * 100}")
     if memos.count == 0
       halt 404, "404 Not Found"
-    end
-    memos.each do |row|
-      row["username"] = mysql.xquery("SELECT username FROM users WHERE id=?", row["user"]).first["username"]
     end
     erb :index, :layout => :base, :locals => {
       :memos => memos,
@@ -164,7 +158,7 @@ class Isucon3App < Sinatra::Base
     mysql = connection
     user  = get_user
 
-    memo = mysql.xquery('SELECT id, user, content, is_private, created_at, updated_at FROM memos WHERE id=?', params[:memo_id]).first
+    memo = mysql.xquery('SELECT id, user, username, content, is_private, created_at, updated_at FROM memos WHERE id=?', params[:memo_id]).first
     unless memo
       halt 404, "404 Not Found"
     end
@@ -173,8 +167,7 @@ class Isucon3App < Sinatra::Base
         halt 404, "404 Not Found"
       end
     end
-    memo["username"] = mysql.xquery('SELECT username FROM users WHERE id=?', memo["user"]).first["username"]
-    memo["content_html"] = memo["content"]
+    memo["content_html"] = gen_markdown(memo["content"])
     if user["id"] == memo["user"]
       cond = ""
     else
@@ -210,8 +203,9 @@ class Isucon3App < Sinatra::Base
     content_html = gen_markdown(params["content"])
 
     mysql.xquery(
-      'INSERT INTO memos (user, content, is_private, created_at) VALUES (?, ?, ?, ?)',
+      'INSERT INTO memos (user, username, content, is_private, created_at) VALUES (?, ?, ?, ?, ?)',
       user["id"],
+      user["username"],
       content_html,
       params["is_private"].to_i,
       Time.now,
