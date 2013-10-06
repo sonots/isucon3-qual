@@ -191,12 +191,9 @@ class Isucon3App < Sinatra::Base
     results.each do |m|
       memos.push(m)
     end
-    0.upto(memos.count - 1).each do |i|
-      if memos[i]["id"] == memo["id"]
-        older = memos[i - 1] if i > 0
-        newer = memos[i + 1] if i < memos.count
-      end
-    end
+    i = memos.index {|item| item["id"] == memo["id"] }
+    older = memos[i - 1] if i and i > 0
+    newer = memos[i + 1] if i and i < memos.count
     erb :memo, :layout => :base, :locals => {
       :user  => user,
       :memo  => memo,
