@@ -167,7 +167,7 @@ class Isucon3App < Sinatra::Base
         halt 404, "404 Not Found"
       end
     end
-    memo["content_html"] = gen_markdown(memo["content"])
+    memo["content_html"] = memo["content"]
     if user["id"] == memo["user"]
       cond = ""
     else
