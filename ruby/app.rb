@@ -6,13 +6,13 @@ require 'dalli'
 require 'rack/session/dalli'
 require 'erubis'
 require 'tempfile'
-require 'rack-mini-profiler'
-require 'newrelic_rpm'
+#require 'rack-mini-profiler'
+#require 'newrelic_rpm'
 require 'redcarpet'
 
-require 'logger'
-$logger = Logger.new('log/app.log')
-$logger.level = Logger::DEBUG
+#require 'logger'
+#$logger = Logger.new('log/app.log')
+#$logger.level = Logger::DEBUG
 
 class Isucon3App < Sinatra::Base
   $stdout.sync = true
