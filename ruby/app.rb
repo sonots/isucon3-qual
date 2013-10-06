@@ -174,7 +174,7 @@ class Isucon3App < Sinatra::Base
       end
     end
     memo["username"] = mysql.xquery('SELECT username FROM users WHERE id=?', memo["user"]).first["username"]
-    memo["content_html"] = gen_markdown(memo["content"])
+    memo["content_html"] = memo["content"]
     if user["id"] == memo["user"]
       cond = ""
     else
@@ -207,10 +207,12 @@ class Isucon3App < Sinatra::Base
     require_user(user)
     anti_csrf
 
+    content_html = gen_markdown(params["content"])
+
     mysql.xquery(
       'INSERT INTO memos (user, content, is_private, created_at) VALUES (?, ?, ?, ?)',
       user["id"],
-      params["content"],
+      content_html,
       params["is_private"].to_i,
       Time.now,
     )
