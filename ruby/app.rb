@@ -6,9 +6,11 @@ require 'dalli'
 require 'rack/session/dalli'
 require 'erubis'
 require 'tempfile'
+require 'rack-mini-profiler'
 
 class Isucon3App < Sinatra::Base
   $stdout.sync = true
+  # use Rack::MiniProfiler
   use Rack::Session::Dalli, {
     :key => 'isucon_session',
     :cache => Dalli::Client.new('localhost:11211')
