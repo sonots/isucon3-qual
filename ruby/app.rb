@@ -8,6 +8,7 @@ require 'erubis'
 require 'tempfile'
 require 'rack-mini-profiler'
 require 'newrelic_rpm'
+require 'redcarpet'
 
 require 'logger'
 $logger = Logger.new('log/app.log')
@@ -56,12 +57,8 @@ class Isucon3App < Sinatra::Base
     end
 
     def gen_markdown(md)
-      tmp = Tempfile.open("isucontemp")
-      tmp.puts(md)
-      tmp.close
-      html = `../bin/markdown #{tmp.path}`
-      tmp.unlink
-      return html
+      @markdown ||= Redcarpet::Markdown.new(Redcarpet::Render::HTML, :autolink => false, :space_after_headers => true)
+      return @markdown.render(md)
     end
 
     def anti_csrf
