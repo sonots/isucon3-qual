@@ -253,9 +253,5 @@ class Isucon3App < Sinatra::Base
     redirect "/memo/#{memo_id}"
   end
 
-  after '/memo/:memo_id' do
-    ap response.body
-  end
-
   run! if app_file == $0
 end
