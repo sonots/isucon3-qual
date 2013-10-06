@@ -9,6 +9,7 @@ gem 'foreman', '0.63.0'
 gem 'mysql2-cs-bind', '0.0.6'
 gem 'rack-mini-profiler'
 gem 'unicorn-worker-killer' # https://github.com/kzk/unicorn-worker-killer
+gem 'newrelic_rpm'
 
 group :development do
   # run "bundle exec shotgun" on development
