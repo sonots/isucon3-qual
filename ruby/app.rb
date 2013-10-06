@@ -39,7 +39,7 @@ class Isucon3App < Sinatra::Base
     end
 
     def get_user
-      mysql = connection
+      # mysql = connection
       user_id = session["user_id"]
       user = {}
       if user_id
