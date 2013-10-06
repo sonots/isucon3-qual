@@ -8,7 +8,7 @@ pid "#{@dir}tmp/pids/unicorn.pid"
 stderr_path "#{@dir}log/unicorn.stderr.log"
 stdout_path "#{@dir}log/unicorn.stdout.log"
 
-worker_processes 5 # CPUの数 * 2 ぐらい？
+worker_processes 8 # CPUの数 * 2 ぐらい？
 timeout 60 # default: 60
 
 preload_app true # allow copy-on-write-friendly GC to save memory
