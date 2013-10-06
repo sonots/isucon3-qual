@@ -70,15 +70,17 @@ class Isucon3App < Sinatra::Base
     end
 
     def url_for(path)
-      scheme = request.scheme
-      if (scheme == 'http' && request.port == 80 ||
-          scheme == 'https' && request.port == 443)
+      unless @base
+        scheme = request.scheme
+        if (scheme == 'http' && request.port == 80 ||
+            scheme == 'https' && request.port == 443)
         port = ""
-      else
-        port = ":#{request.port}"
+        else
+          port = ":#{request.port}"
+        end
+        @base = "#{scheme}://#{request.host}#{port}#{request.script_name}"
       end
-      base = "#{scheme}://#{request.host}#{port}#{request.script_name}"
-      "#{base}#{path}"
+      "#{@base}#{path}"
     end
   end
 
