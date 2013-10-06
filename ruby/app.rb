@@ -38,10 +38,11 @@ class Isucon3App < Sinatra::Base
     end
 
     def get_user
-      mysql = connection
       user_id = session["user_id"]
       if user_id
-        user = mysql.xquery("SELECT * FROM users WHERE id=?", user_id).first
+        user = {}
+        user["user_id"] = user_id
+        user["username"] = session["username"]
         headers "Cache-Control" => "private"
       end
       return user || {}
@@ -140,6 +141,7 @@ class Isucon3App < Sinatra::Base
     if user && user["password"] == Digest::SHA256.hexdigest(user["salt"] + password)
       session.clear
       session["user_id"] = user["id"]
+      session["username"] = username
       session["token"] = Digest::SHA256.hexdigest(Random.new.rand.to_s)
       mysql.xquery("UPDATE users SET last_access=now() WHERE id=?", user["id"])
       redirect "/mypage"
