@@ -1,2 +1,2 @@
-log/*.log
-tmp/*
+ruby/log/*.log
+ruby/tmp/*
