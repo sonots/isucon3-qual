@@ -82,13 +82,35 @@ class Isucon3App < Sinatra::Base
       end
       "#{@base}#{path}"
     end
+
+    def get_cache_memos_count
+      options =  {}
+      dc = Dalli::Client.new('localhost:11211', options)
+      dc.get('memos_count')
+    end
+
+    def set_cache_memos_count(count)
+      options =  {}
+      dc = Dalli::Client.new('localhost:11211', options)
+      dc.set('memos_count', count)
+    end
+
+    def increment_cache_memos_count
+      options =  {}
+      dc = Dalli::Client.new('localhost:11211', options)
+      dc.incr('memos_count')
+    end
+
   end
 
   get '/' do
     mysql = connection
     user  = get_user
 
-    total = mysql.xquery('SELECT count(*) AS c FROM memos WHERE is_private=0').first["c"]
+    unless total = get_cache_memos_count
+      total = mysql.xquery('SELECT count(*) AS c FROM memos WHERE is_private=0').first["c"]
+      set_cache_memos_count(total)
+    end
 
     memos = mysql.query("SELECT id, first_sentence, username, created_at FROM memos WHERE is_private=0 ORDER BY id DESC LIMIT 100")
     erb :index, :layout => :base, :locals => {
@@ -104,7 +126,12 @@ class Isucon3App < Sinatra::Base
     user  = get_user
 
     page  = params["page"].to_i
-    total = mysql.xquery('SELECT count(*) AS c FROM memos WHERE is_private=0').first["c"]
+
+    unless total = get_cache_memos_count
+      total = mysql.xquery('SELECT count(*) AS c FROM memos WHERE is_private=0').first["c"]
+      set_cache_memos_count(total)
+    end
+
     memos = mysql.xquery("SELECT id, first_sentence, username, created_at FROM memos WHERE is_private=0 ORDER BY id DESC LIMIT 100 OFFSET #{page * 100}")
     if memos.count == 0
       halt 404, "404 Not Found"
@@ -214,6 +241,11 @@ class Isucon3App < Sinatra::Base
     first_sentence = params["content"].split(/\r?\n/).first
     content_html   = gen_markdown(params["content"])
 
+    unless total = get_cache_memos_count
+      total = mysql.xquery('SELECT count(*) AS c FROM memos WHERE is_private=0').first["c"]
+      set_cache_memos_count(total)
+    end
+
     mysql.xquery(
       'INSERT INTO memos (user, username,first_sentence, content, is_private, created_at) VALUES (?, ?, ?, ?, ?, ?)',
       user["id"],
@@ -223,7 +255,7 @@ class Isucon3App < Sinatra::Base
       params["is_private"].to_i,
       Time.now,
     )
-    
+    increment_cache_memos_count
     memo_id = mysql.last_id
     redirect "/memo/#{memo_id}"
   end
