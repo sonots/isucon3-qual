@@ -239,6 +239,11 @@ class Isucon3App < Sinatra::Base
     first_sentence = params["content"].split(/\r?\n/).first
     content_html   = gen_markdown(params["content"])
 
+    unless total = get_cache_memos_count
+      total = mysql.xquery('SELECT count(*) AS c FROM memos WHERE is_private=0').first["c"]
+      set_cache_memos_count(total)
+    end
+
     mysql.xquery(
       'INSERT INTO memos (user, username,first_sentence, content, is_private, created_at) VALUES (?, ?, ?, ?, ?, ?)',
       user["id"],
