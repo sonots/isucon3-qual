@@ -85,7 +85,7 @@ class Isucon3App < Sinatra::Base
 
     total = mysql.xquery('SELECT count(*) AS c FROM memos WHERE is_private=0').first["c"]
 
-    memos = mysql.query("SELECT * FROM memos WHERE is_private=0 ORDER BY id DESC LIMIT 100")
+    memos = mysql.query("SELECT id, first_sentence, username, created_at FROM memos WHERE is_private=0 ORDER BY id DESC LIMIT 100")
     erb :index, :layout => :base, :locals => {
       :memos => memos,
       :page  => 0,
@@ -100,7 +100,7 @@ class Isucon3App < Sinatra::Base
 
     page  = params["page"].to_i
     total = mysql.xquery('SELECT count(*) AS c FROM memos WHERE is_private=0').first["c"]
-    memos = mysql.xquery("SELECT * FROM memos WHERE is_private=0 ORDER BY id DESC LIMIT 100 OFFSET #{page * 100}")
+    memos = mysql.xquery("SELECT id, first_sentence, username, created_at FROM memos WHERE is_private=0 ORDER BY id DESC LIMIT 100 OFFSET #{page * 100}")
     if memos.count == 0
       halt 404, "404 Not Found"
     end
