@@ -1,6 +1,6 @@
 #worker_processes 10
 #preload_app true
-@dir = "/home/isucon/webapp/ruby/"
+@dir = File.expand_path('../', __FILE__) + "/"
 working_directory @dir
 
 listen "#{@dir}tmp/sockets/unicorn.sock", backlog: 1024
