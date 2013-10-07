@@ -225,16 +225,8 @@ class Isucon3App < Sinatra::Base
     else
       cond = "AND is_private=0"
     end
-    memos = []
-    older = nil
-    newer = nil
-    results = mysql.xquery("SELECT * FROM memos WHERE user=? #{cond} ORDER BY created_at", memo["user"])
-    results.each do |m|
-      memos.push(m)
-    end
-    i = memos.index {|item| item["id"] == memo["id"] }
-    older = memos[i - 1] if i and i > 0
-    newer = memos[i + 1] if i and i < memos.count
+    newer = mysql.xquery("SELECT * FROM memos WHERE user=? #{cond} AND id > ? ORDER BY created_at LIMIT 1", memo["user"], memo["id"]).to_a.first
+    older = mysql.xquery("SELECT * FROM memos WHERE user=? #{cond} AND id < ? ORDER BY created_at LIMIT 1", memo["user"], memo["id"]).to_a.first
     erb :memo, :layout => :base, :locals => {
       :user  => user,
       :memo  => memo,
