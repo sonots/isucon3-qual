@@ -87,12 +87,20 @@ class Isucon3App < Sinatra::Base
       $dc ||= Dalli::Client.new('localhost:11211', {:namespace => 'isucon'})
     end
 
-    def get_cache_memos_count
+    def get_cache(key)
       begin
-        dalli.get('memoscount')
+        dalli.get(key)
       rescue Dalli::UnmarshalError => e
         nil
       end
+    end
+
+    def set_cache(key, val)
+      dalli.set(key, val)
+    end
+
+    def get_cache_memos_count
+      get_cache('memoscount')
     end
 
     def set_cache_memos_count(count)
@@ -135,7 +143,10 @@ class Isucon3App < Sinatra::Base
       set_cache_memos_count(total)
     end
 
-    memos = mysql.xquery("SELECT id, first_sentence, username, created_at FROM memos WHERE is_private=0 ORDER BY id DESC LIMIT 100 OFFSET #{page * 100}")
+    unless memos = get_cache("recent_#{page}")
+      memos = mysql.xquery("SELECT id, first_sentence, username, created_at FROM memos WHERE is_private=0 ORDER BY id DESC LIMIT 100 OFFSET #{page * 100}")
+      set_cache("recent_#{page}", memos)
+    end
     if memos.count == 0
       halt 404, "404 Not Found"
     end
@@ -257,7 +268,9 @@ class Isucon3App < Sinatra::Base
     )
     
     memo_id = mysql.last_id
-    increment_cache_memos_count
+    
+    total = increment_cache_memos_count
+    (total.to_i / 100).to_i.times {|page| set_cache("recent_#{page}", nil) }
     redirect "/memo/#{memo_id}"
   end
 
