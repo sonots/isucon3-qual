@@ -70,7 +70,7 @@ class Isucon3App < Sinatra::Base
     end
 
     def url_for(path)
-      unless @base
+      unless $base
         scheme = request.scheme
         if (scheme == 'http' && request.port == 80 ||
             scheme == 'https' && request.port == 443)
@@ -78,30 +78,29 @@ class Isucon3App < Sinatra::Base
         else
           port = ":#{request.port}"
         end
-        @base = "#{scheme}://#{request.host}#{port}#{request.script_name}"
+        $base = "#{scheme}://#{request.host}#{port}#{request.script_name}"
       end
-      "#{@base}#{path}"
+      "#{$base}#{path}"
     end
+    
+    def dalli
+      $dc ||= Dalli::Client.new('localhost:11211', {:namespace => 'isucon'})
+    end
+
     def get_cache_memos_count
-      options = {:namespace => 'count'}
-      @dc ||= Dalli::Client.new('localhost:11211', options)
       begin
-        @dc.get('memoscount')
+        dalli.get('memoscount')
       rescue Dalli::UnmarshalError => e
         nil
       end
     end
 
     def set_cache_memos_count(count)
-      options = {:namespace => 'count'}
-      @dc ||= Dalli::Client.new('localhost:11211', options)
-      @dc.set('memoscount', count)
+      dalli.set('memoscount', count)
     end
 
     def increment_cache_memos_count
-      options = {:namespace => 'count'}
-      @dc ||= Dalli::Client.new('localhost:11211', options)
-      @dc.incr('memoscount')
+      dalli.incr('memoscount')
     end
   end
 
