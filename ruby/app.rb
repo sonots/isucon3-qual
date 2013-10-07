@@ -64,9 +64,9 @@ class Isucon3App < Sinatra::Base
     end
 
     def anti_csrf
-      if params["sid"] != session["token"]
-        halt 400, "400 Bad Request"
-      end
+      #if params["sid"] != session["token"]
+      #  halt 400, "400 Bad Request"
+      #end
     end
 
     def url_for(path)
@@ -184,8 +184,8 @@ class Isucon3App < Sinatra::Base
       session.clear
       session["user_id"] = user["id"]
       session["username"] = user["username"]
-      session["token"] = Digest::SHA256.hexdigest(Random.new.rand.to_s)
-      mysql.xquery("UPDATE users SET last_access=now() WHERE id=?", user["id"])
+      # session["token"] = Digest::SHA256.hexdigest(Random.new.rand.to_s)
+      # mysql.xquery("UPDATE users SET last_access=now() WHERE id=?", user["id"])
       redirect "/mypage"
     else
       erb :signin, :layout => :base, :locals => {
