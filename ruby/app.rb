@@ -104,7 +104,7 @@ class Isucon3App < Sinatra::Base
     end
 
     def set_cache_memos_count(count)
-      dalli.set('memoscount', count)
+      dalli.set('memoscount', count, nil, :raw => true)
     end
 
     def increment_cache_memos_count
