@@ -145,6 +145,7 @@ class Isucon3App < Sinatra::Base
 
     unless memos = get_cache("recent_#{page}")
       memos = mysql.xquery("SELECT id, first_sentence, username, created_at FROM memos WHERE is_private=0 ORDER BY id DESC LIMIT 100 OFFSET #{page * 100}")
+      memos = memos.to_a(:as => :hash)
       set_cache("recent_#{page}", memos)
     end
     if memos.count == 0
