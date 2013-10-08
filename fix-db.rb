@@ -5,7 +5,7 @@ require 'mysql2-cs-bind'
 require 'redcarpet'
 
 def connection
-  config = JSON.parse(IO.read(File.dirname(__FILE__) + "/../config/#{ ENV['ISUCON_ENV'] || 'local' }.json"))['database']
+  config = JSON.parse(IO.read(File.dirname(__FILE__) + "/config/#{ ENV['ISUCON_ENV'] || 'local' }.json"))['database']
   return $mysql if $mysql
   $mysql = Mysql2::Client.new(
     :host => config['host'],

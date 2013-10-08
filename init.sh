@@ -4,4 +4,4 @@ mysql -uroot -proot isucon -e 'create index user_is_private_created_at_index on 
 mysql -uroot -proot isucon -e 'alter table memos add column username varchar(255) NOT NULL;'
 mysql -uroot -proot isucon -e 'alter table memos add column first_sentence text NOT NULL;'
 
-/home/isucon/env.sh ruby /home/isucon/fix-db.rb
+/home/isucon/env.sh ruby /home/isucon/webapp/fix-db.rb
