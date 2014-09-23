@@ -1,3 +1,6 @@
+* AMI http://isucon.net/archives/32971265.html
+* レギュレーション http://isucon.net/archives/31526183.html
+
 ### ベンチマークの設定と実行
 
 1. インスタンス起動時には、チームを識別するための API key の初期設定が必要です。API key は[管理画面](https://isucon2013.kayac.com/) にチーム代表者が参加登録したアカウントでログインしたトップページに表示されていますので、下記コマンドを実行してください
